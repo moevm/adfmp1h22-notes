@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation"
+    app:startDestination="@id/nav_input">
+
+    <fragment
+        android:id="@+id/nav_notes"
+        android:name="com.ekdorn.silentium.fragments.NotesFragment"
+        android:label="@string/menu_notes"
+        tools:layout="@layout/fragment_notes" />
+
+    <fragment
+        android:id="@+id/nav_input"
+        android:name="com.ekdorn.silentium.fragments.InputFragment"
+        android:label="@string/menu_input"
+        tools:layout="@layout/fragment_notes" />
+
+    <fragment
+        android:id="@+id/nav_dialogs"
+        android:name="com.ekdorn.silentium.fragments.DialogsFragment"
+        android:label="@string/menu_dialogs"
+        tools:layout="@layout/fragment_dialogs" >
+
+        <action
+            android:id="@+id/action_nav_dialogs_to_nav_messages"
+            app:destination="@id/nav_messages" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_contacts"
+        android:name="com.ekdorn.silentium.fragments.ContactsFragment"
+        android:label="@string/menu_contacts"
+        tools:layout="@layout/fragment_contacts" >
+        <action
+            android:id="@+id/action_nav_contacts_to_nav_messages"
+            app:destination="@id/nav_messages" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_description"
+        android:name="com.ekdorn.silentium.fragments.DescriptionFragment"
+        android:label="@string/menu_description"
+        tools:layout="@layout/fragment_description" />
+
+    <fragment
+        android:id="@+id/nav_settings"
+        android:name="com.ekdorn.silentium.fragments.SettingsFragment"
+        android:label="@string/menu_settings"
+        tools:layout="@layout/fragment_settings" />
+
+    <fragment
+        android:id="@+id/nav_messages"
+        android:name="com.ekdorn.silentium.fragments.MessagesFragment"
+        android:label="@string/menu_messages"
+        tools:layout="@layout/fragment_messages" />
+
+</navigation>
