@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginVertical="@dimen/minimal_offset"
+    android:layout_marginHorizontal="@dimen/activity_margin" >
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/dialog_image"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        tools:srcCompat="@tools:sample/avatars"
+        android:src="@drawable/logo_crop"
+        android:layout_marginStart="@dimen/minimal_offset"
+        app:shapeAppearanceOverlay="@style/RoundedImageViewStyle"
+        app:layout_constraintHorizontal_weight="10"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/contact_name"/>
+
+    <TextView
+        android:id="@+id/contact_name"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:text="TextView"
+        android:maxLines="1"
+        android:textStyle="bold"
+        android:layout_marginHorizontal="@dimen/minimal_offset"
+        android:layout_marginBottom="@dimen/minimal_offset"
+        app:layout_constraintHorizontal_weight="36"
+        app:layout_constraintVertical_weight="1"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/last_message_text"
+        app:layout_constraintStart_toEndOf="@id/dialog_image"
+        app:layout_constraintEnd_toStartOf="@id/unread_count"/>
+
+    <com.google.android.material.chip.Chip
+        android:id="@+id/unread_count"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:textAlignment="center"
+        android:enabled="false"
+        app:layout_constraintHorizontal_weight="7"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/contact_name"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <TextView
+        android:id="@+id/last_message_text"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:text="TextView"
+        android:maxLines="2"
+        android:layout_marginHorizontal="@dimen/minimal_offset"
+        app:layout_constraintHorizontal_weight="9"
+        app:layout_constraintVertical_weight="2"
+        app:layout_constraintTop_toBottomOf="@id/contact_name"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/dialog_image"
+        app:layout_constraintEnd_toStartOf="@id/unread_count"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
