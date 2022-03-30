@@ -1,0 +1,39 @@
+name: INSTRUMENTED-TEST
+
+on:
+  - release
+
+jobs:
+  instrumented:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Create Configs And Properties
+        run: |
+          echo "$GOOGLE_SERVICES" > ./app/google-services.json
+          echo "$TEST_PROPERTIES" > ./test.properties
+        env:
+          GOOGLE_SERVICES: ${{ secrets.GOOGLE_SERVICES }}
+          TEST_PROPERTIES: ${{ secrets.TEST_PROPERTIES }}
+
+      - name: Set up JDK 11 🔧
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: 7.4
+          arguments: wrapper
+
+      - name: run tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          target: playstore
+          disable-animations: false
+          script: ./gradlew connectedCheck
