@@ -9,8 +9,8 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.ekdorn.silentium.R
-import com.ekdorn.silentium.utils.DoubleItemCallback
-import com.ekdorn.silentium.utils.SeparationDecorator
+import com.ekdorn.silentium.visuals.DoubleItemCallback
+import com.ekdorn.silentium.visuals.SeparationDecorator
 
 
 class DescriptiveRecyclerView(context: Context, attributes: AttributeSet?, style: Int) : ConstraintLayout(context, attributes, style) {
@@ -21,8 +21,8 @@ class DescriptiveRecyclerView(context: Context, attributes: AttributeSet?, style
         open fun separators(): List<Pair<Int, String>> = emptyList()
 
         override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
-            viewHolder.itemView.setOnClickListener { onClick(viewHolder, position) }
-            viewHolder.itemView.setOnLongClickListener { onLongClick(viewHolder, position); true }
+            viewHolder.itemView.setOnClickListener { onClick(viewHolder, viewHolder.adapterPosition) }
+            viewHolder.itemView.setOnLongClickListener { onLongClick(viewHolder, viewHolder.adapterPosition); true }
         }
 
         abstract fun onClick(viewHolder: ViewHolder, position: Int)

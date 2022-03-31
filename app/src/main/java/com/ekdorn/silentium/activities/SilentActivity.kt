@@ -8,18 +8,19 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
 import com.ekdorn.silentium.R
 import com.ekdorn.silentium.databinding.ActivitySilentRootBinding
+import com.ekdorn.silentium.fragments.InputFragmentDirections
 import com.ekdorn.silentium.managers.UserManager
-import com.ekdorn.silentium.mvs.ContactsViewModel
-import com.ekdorn.silentium.mvs.DialogsViewModel
-import com.ekdorn.silentium.mvs.MessagesViewModel
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 
 
 class SilentActivity : AppCompatActivity() {
+    companion object {
+        const val NAVIGATE_TO_SETTINGS = "settings_call"
+    }
+
+    private var preferencesView = false
+
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivitySilentRootBinding
 
@@ -32,13 +33,15 @@ class SilentActivity : AppCompatActivity() {
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
+        preferencesView = intent.getBooleanExtra(NAVIGATE_TO_SETTINGS, false)
 
         val header = binding.navView.getHeaderView(0)
-        header.findViewById<TextView>(R.id.user_name).text = UserManager.me.name ?: "[No display name]"
-        header.findViewById<TextView>(R.id.user_contact).text = UserManager.me.contact
+        UserManager[this].observe(this) {
+            header.findViewById<TextView>(R.id.user_name).text = it.name ?: "[No display name]"
+            header.findViewById<TextView>(R.id.user_contact).text = it.contact
+        }
 
         val navController = findNavController(R.id.nav_host_fragment_content_main)
-        // Passing each menu ID as a set of Ids because each menu should be considered as top level destinations.
         appBarConfiguration = AppBarConfiguration(setOf(
             R.id.nav_notes,
             R.id.nav_input,
@@ -47,17 +50,15 @@ class SilentActivity : AppCompatActivity() {
             R.id.nav_description,
             R.id.nav_settings
         ), binding.drawerLayout)
-        setupActionBarWithNavController(navController, appBarConfiguration)
-        binding.navView.setupWithNavController(navController)
 
-        // TODO: remove
-        ViewModelProvider(this)[DialogsViewModel::class.java].getDialogs()
-        ViewModelProvider(this)[ContactsViewModel::class.java].syncContacts()
-        ViewModelProvider(this)[MessagesViewModel::class.java].getMessages()
+        if (preferencesView) navController.navigate(InputFragmentDirections.actionNavInputToNavSettings())
+        else setupActionBarWithNavController(navController, appBarConfiguration)
+
+        binding.navView.setupWithNavController(navController)
     }
 
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
-        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+        return (preferencesView && navController.navigateUp(appBarConfiguration)) || super.onSupportNavigateUp()
     }
 }
