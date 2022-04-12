@@ -5,12 +5,20 @@ plugins {
     id 'com.google.gms.google-services'
     id 'io.gitlab.arturbosch.detekt'
     id 'androidx.navigation.safeargs.kotlin'
+    id 'org.jetbrains.kotlin.plugin.serialization' version "$kotlin_version"
+}
+
+def readProperties(name, params, targets, config) {
+    if ((new File(name).exists())) {
+        Properties properties = new Properties()
+        properties.load(project.rootProject.file(name).newDataInputStream())
+        for (i in 0 .. params.size() - 1) config.buildConfigField "String", targets[i], "\"${properties.getProperty(params[i], "")}\""
+    }
 }
 
 android {
     compileSdkVersion 32
     buildToolsVersion "30.0.3"
-    testBuildType "instrumentedTest"
 
     defaultConfig {
         applicationId "com.ekdorn.silentium"
@@ -27,6 +35,16 @@ android {
                 arguments += ["room.schemaLocation": "$projectDir/schemas".toString()]
             }
         }
+
+        buildConfigField "String", 'WEB_KEY', "\"\""
+        buildConfigField "String", 'AUTH_NUMBER', "\"\""
+        buildConfigField "String", 'AUTH_CODE', "\"\""
+    }
+
+    applicationVariants.all { variant ->
+        if (variant.name == 'dry') {
+            project.tasks.getByName('process' + variant.name.capitalize() + 'GoogleServices').enabled = false
+        }
     }
 
     buildTypes {
@@ -34,19 +52,27 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            readProperties("firebase.properties", ['web.key'], ['WEB_KEY'], it)
             resValue "string", "build_version", "Build: ${defaultConfig.versionName}"
+            manifestPlaceholders = [LabelsSuffix: "_prod"]
+            resValue "string", "app_name", "@string/app_name_prod"
         }
+
         debug {
             debuggable true
+            applicationIdSuffix '.dev'
+            readProperties("test.properties", ['auth.number', 'auth.code'], ['AUTH_NUMBER', 'AUTH_CODE'], it)
+            readProperties("firebase.properties", ['web.key'], ['WEB_KEY'], it)
             resValue "string", "build_version", "Build: ${defaultConfig.versionName}-debug"
+            manifestPlaceholders = [LabelsSuffix: "_dev"]
+            resValue "string", "app_name", "@string/app_name_dev"
         }
-        instrumentedTest {
-            initWith debug
-            Properties properties = new Properties()
-            properties.load(project.rootProject.file("test.properties").newDataInputStream())
-            buildConfigField "String", "AUTH_NUMBER", "\"${properties.getProperty("auth.number", "")}\""
-            buildConfigField "String", "AUTH_CODE", "\"${properties.getProperty("auth.code", "")}\""
-            matchingFallbacks = [ 'debug' ]
+
+        dry {
+            debuggable true
+            resValue "string", "build_version", "Build: ${defaultConfig.versionName}-test"
+            manifestPlaceholders = [LabelsSuffix: "_dev"]
+            resValue "string", "app_name", "@string/app_name_dev"
         }
     }
 
@@ -56,7 +82,8 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = JavaVersion.VERSION_1_8
+        freeCompilerArgs += '-opt-in=kotlin.RequiresOptIn'
     }
 
     buildFeatures {
@@ -68,22 +95,28 @@ android {
     }
 }
 
+
+
 dependencies {
     kapt 'androidx.room:room-compiler:2.4.2'
+    kapt 'com.github.bumptech.glide:compiler:4.11.0'
     implementation platform('com.google.firebase:firebase-bom:29.1.0')
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-protobuf:1.3.2'
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.core:core-splashscreen:1.0.0-beta02'
     implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.4.1'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1'
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.4.1'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.4.1'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.4.2'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.4.2'
+    implementation 'androidx.preference:preference-ktx:1.2.0'
     implementation 'com.google.android.material:material:1.5.0'
     implementation 'com.google.firebase:firebase-auth-ktx'
     implementation 'com.google.firebase:firebase-analytics-ktx'
-    implementation 'com.firebaseui:firebase-ui-auth:8.0.0'
+    implementation 'com.google.firebase:firebase-database-ktx'
+    implementation 'com.google.firebase:firebase-messaging-ktx'
+    implementation 'com.firebaseui:firebase-ui:8.0.0'
     implementation 'androidx.room:room-runtime:2.4.2'
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'androidx.room:room-testing:2.4.2'
