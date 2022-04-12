@@ -7,4 +7,9 @@
     <declare-styleable name="DescriptiveRecyclerView">
         <attr name="text" format="string" />
     </declare-styleable>
+
+    <declare-styleable name="RepeatButton">
+        <attr name="initialInterval" format="integer" />
+        <attr name="normalInterval" format="integer" />
+    </declare-styleable>
 </resources>

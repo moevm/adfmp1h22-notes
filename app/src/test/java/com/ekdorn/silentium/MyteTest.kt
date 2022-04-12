@@ -5,6 +5,7 @@ import junit.framework.TestCase.assertEquals
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
+import java.math.BigInteger
 
 
 class MyteTest {
@@ -13,11 +14,11 @@ class MyteTest {
     private val hexString = "0x7aa9cb7a7ade6b3ba9bdf9fd2abdfda3ef9ed7eb9acf9a76e2ea97fade3b6f7f2"
     private val morseString = "- .... .\t--.- ..- .. -.-. -.-\t-... .-. --- .-- -.\t..-. --- -..-\t.--- ..- -- .--. ...\t--- ...- . .-.\t.-.. .- --.. -.--\t-.. --- --."
 
-    private val myte = byteArrayOf(-89, -102, -68, -89, -89, -19, -74, -77, -102, -37, -97, -33, -94, -37, -33, 58, -2, -23, 125, -66, -87, -4, -87, 103, 46, -82, 121, -81, -19, -77, -10, -9, 2)
+    private val myte = Myte("343741338273217814399414800141895123778762081846105108012481114039899188402855")
 
 
     @Test
-    fun readableToMyte_isCorrect() = assertThat(readableString.toMyteReadable(), `is`(myte))
+    fun readableToMyte_isCorrect() = assertThat(readableString.toMyteReadable("default"), `is`(myte))
 
     @Test
     fun binaryToMyte_isCorrect() = assertThat(binaryString.toMyteBinary(), `is`(myte))
@@ -30,14 +31,14 @@ class MyteTest {
 
 
     @Test
-    fun myteToReadable_isCorrect() = assertEquals(myte.toReadableString(), readableString)
+    fun myteToReadable_isCorrect() = assertEquals(readableString, myte.toReadableString("default"))
 
     @Test
-    fun myteToBinary_isCorrect() = assertEquals(myte.toBinaryString(), binaryString)
+    fun myteToBinary_isCorrect() = assertEquals(binaryString, myte.toBinaryString())
 
     @Test
-    fun myteToHex_isCorrect() = assertEquals(myte.toHexString(), hexString)
+    fun myteToHex_isCorrect() = assertEquals(hexString, myte.toHexString())
 
     @Test
-    fun myteToMorse_isCorrect() = assertEquals(myte.toMorseString(), morseString)
+    fun myteToMorse_isCorrect() = assertEquals(morseString, myte.toMorseString())
 }

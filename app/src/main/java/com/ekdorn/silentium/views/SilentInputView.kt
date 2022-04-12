@@ -13,11 +13,6 @@ import androidx.appcompat.widget.AppCompatImageView
 import com.ekdorn.silentium.R
 import com.ekdorn.silentium.core.*
 import com.ekdorn.silentium.managers.PreferenceManager
-import com.ekdorn.silentium.managers.PreferenceManager.DAH_LENGTH_KEY
-import com.ekdorn.silentium.managers.PreferenceManager.END_LENGTH_KEY
-import com.ekdorn.silentium.managers.PreferenceManager.EOM_LENGTH_KEY
-import com.ekdorn.silentium.managers.PreferenceManager.GAP_LENGTH_KEY
-import com.ekdorn.silentium.managers.PreferenceManager.get
 import com.ekdorn.silentium.utils.pow
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
@@ -32,9 +27,10 @@ class SilentInputView(context: Context, attributes: AttributeSet?, style: Int) :
     constructor(context: Context): this(context, null)
 
     private var morseListener: MorseListener? = null
-    private var rotate = false
 
+    private val rotate: Boolean
     private val prefs = PreferenceManager[context]
+
     private val input = mutableListOf<BiBit>()
     private val currentLong = mutableListOf<BiBit>()
 
@@ -46,7 +42,7 @@ class SilentInputView(context: Context, attributes: AttributeSet?, style: Int) :
 
     init {
         context.theme.obtainStyledAttributes(attributes, R.styleable.SilentInputView, 0, 0).apply {
-            try { rotate = getBoolean(R.styleable.SilentInputView_rotate, rotate) } finally { recycle() }
+            try { rotate = getBoolean(R.styleable.SilentInputView_rotate, false) } finally { recycle() }
         }
 
         if (rotate) ObjectAnimator.ofFloat(this, View.ROTATION, 0.0f, 360.0f).apply {
@@ -79,7 +75,8 @@ class SilentInputView(context: Context, attributes: AttributeSet?, style: Int) :
                 animateDown()
                 actionUp()
             }
-            MotionEvent.ACTION_MOVE -> if (!touchedRound(event.x, event.y)) {
+            MotionEvent.ACTION_MOVE -> if (!touchedRound(event.x, event.y) && inputInProgress) {
+                inputInProgress = false
                 animateDown()
                 actionUp()
             }
@@ -90,17 +87,17 @@ class SilentInputView(context: Context, attributes: AttributeSet?, style: Int) :
 
 
     private fun setGapTimer() = MainScope().launch {
-        delay(prefs.get<Long>(GAP_LENGTH_KEY))
+        delay(prefs.get(R.string.pref_morse_gap_key, -1).toLong())
         morseListener?.onLong(currentLong.biBitsToLong())
     }
 
     private fun setEndTimer() = MainScope().launch {
-        delay(prefs.get<Long>(END_LENGTH_KEY))
-        morseListener?.onLong(BiBit.END.atom.toLong())
+        delay(prefs.get(R.string.pref_morse_end_key, -1).toLong())
+        morseListener?.onLong(Morse.SPACE)
     }
 
     private fun setEomTimer() = MainScope().launch {
-        delay(prefs.get<Long>(EOM_LENGTH_KEY))
+        delay(prefs.get(R.string.pref_morse_eom_key, -1).toLong())
         input.addAll(currentLong)
         currentLong.clear()
         morseListener?.onMyte(input.biBitsToMyte())
@@ -115,11 +112,11 @@ class SilentInputView(context: Context, attributes: AttributeSet?, style: Int) :
             morseListener?.onStart()
         } else {
             val delta = currentTimeMillis() - previousTouch
-            if (delta >= prefs.get<Long>(END_LENGTH_KEY)) {
+            if (delta >= prefs.get(R.string.pref_morse_end_key, -1).toLong()) {
                 input.addAll(currentLong)
                 input.add(BiBit.END)
                 currentLong.clear()
-            } else if (delta >= prefs.get<Long>(GAP_LENGTH_KEY)) {
+            } else if (delta >= prefs.get(R.string.pref_morse_gap_key, -1).toLong()) {
                 input.addAll(currentLong)
                 input.add(BiBit.GAP)
                 currentLong.clear()
@@ -133,7 +130,7 @@ class SilentInputView(context: Context, attributes: AttributeSet?, style: Int) :
 
     private fun actionUp() {
         val delta = currentTimeMillis() - previousTouch
-        if (delta >= prefs.get<Long>(DAH_LENGTH_KEY)) currentLong.add(BiBit.DAH)
+        if (delta >= prefs.get(R.string.pref_morse_dah_key, -1).toLong()) currentLong.add(BiBit.DAH)
         else currentLong.add(BiBit.DIT)
         morseListener?.onBiBit(currentLong.last())
 
